@@ -1,0 +1,4 @@
+protobuf==4.21.8
+setuptools==61.2.0
+tqdm==4.64.0
+google-cloud-storage==2.5.0
