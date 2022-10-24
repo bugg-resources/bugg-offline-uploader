@@ -2,12 +2,12 @@ A script to upload audio files to Bugg that have been recorded offline.
 
 To run the code:
 ```
-python3 ./bugg/bugg.py --folder ./Downloads/data/
+python3 bugg/bugg.py --folder ./Downloads/data/
 ```
 
 ## Setting device locations
 
-At the start of the upload for each device, the script will ask you to set the device location on the [https://app.bugg.xyz](https://app.bugg.xyz) website. 
+At the start of the upload for each device, the script will ask you to set the device location on the [app.bugg.xyz](https://app.bugg.xyz) website. 
 
 If the device's location has not previously been registered on the web app, make sure you do this before continuing with the upload.
 
