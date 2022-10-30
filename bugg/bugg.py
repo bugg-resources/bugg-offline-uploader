@@ -3,7 +3,7 @@
 from tqdm import tqdm
 import argparse
 import json
-import os 
+import os
 from pathlib import Path
 from datetime import datetime
 from google.cloud import storage
@@ -52,14 +52,13 @@ def main():
     # the path should be audio/projectId/deviceId/configId
     projectPath = os.path.join(audioPath, config["device"]["project_id"])
     if not os.path.isdir(projectPath):
-        print(f"Cannot find project folder {projectPath}. \nThe project folder needs to match the ID in the config file.")
-        exit(1)
-
-
-    projectPath = os.path.join(audioPath, config["device"]["project_id"])
-    if not os.path.isdir(projectPath):
-        print(f"Cannot find project folder {projectPath}. \nThe project folder needs to match the ID in the config file.")
-        exit(1)
+        projPrependProjectPath = os.path.join(audioPath, 'proj_'+config["device"]["project_id"])
+        if os.path.isdir(projPrependProjectPath):
+            projectPath = projPrependProjectPath
+            continue
+        else:
+            print(f"Cannot find project folder {projectPath}. \nThe project folder needs to match the ID in the config file.")
+            exit(1)
 
     # Get all the folders in this directory
     deviceFolderCandidates = os.listdir(projectPath)
@@ -75,7 +74,7 @@ def main():
         if not os.path.isdir(deviceConfigPath):
             print(f"Expected to find folder \n {deviceConfigPath}\nbut it does not exist. Each device folder needs a folder with the config ID as it's name and the config ID needs to match the one in the config file (conf_{configId}) in the config file.")
             exit(1)
-        else: 
+        else:
             configFolders.append(deviceConfigPath)
             deviceIds.append(deviceFolder)
 
@@ -93,16 +92,16 @@ def main():
                 filePathsToUpload.append(os.path.join(configFolder, mp3File))
 
     print("""
-        @                                                                            
+        @
         @@@@      @@@@@@@@@@@@@   (@@@@@@   ,@@@@@@    @@@@@@@@@@@@@@   %@@@@@@@@@@@@@
         &@@@@@@.    @@@@@@@@@@@@@@  (@@@@@@   ,@@@@@@  @@@@@@@@@@@@@@@@  @@@@@@@@@@@@@@@
-            &@@@    @@@@@@@@@@@@@.  (@@@@@@   ,@@@@@@  @@@@@@#           @@@@@@         
+            &@@@    @@@@@@@@@@@@@.  (@@@@@@   ,@@@@@@  @@@@@@#           @@@@@@
                                     (@@@@@@   ,@@@@@@  @@@@@@#   ,,,,,.  @@@@@@    ,,,,,
                     @@@@@@@@@@&     (@@@@@@   ,@@@@@@  @@@@@@#  @@@@@@@  @@@@@@   %@@@@@
         ,@@@@    @@@@@@@@@@@@@/  (@@@@@@   (@@@@@@  @@@@@@%  #@@@@@@  @@@@@@*  %@@@@@
         @@@@@@#     @@@@@@@@@@@@@@  *@@@@@@@@@@@@@@@&  #@@@@@@@@@@@@@@@  @@@@@@@@@@@@@@@
         @@@@      @@@@@@@@@@@@(     (@@@@@@@@@@@#      /@@@@@@@@@@@@@    (@@@@@@@@@@@@
-        
+
                                     Audio Uploader
     """);
 
@@ -147,11 +146,11 @@ def main():
 
     deviceIdsSeen = []
     for filePath in filePathsToUpload:
-        # Remove the args.folder prefix if there is one 
+        # Remove the args.folder prefix if there is one
         remoteFile = filePath
-        if args.folder: 
+        if args.folder:
             remoteFile = filePath.replace(args.folder, "")
-        
+
         # Add the proj_ prefix to the project ID
         remoteFile = remoteFile.replace(f"/{config['device']['project_id']}/", f"/proj_{config['device']['project_id']}/")
         remoteFile = remoteFile.replace("/audio/", "")
@@ -160,16 +159,16 @@ def main():
             remoteFile = remoteFile[6:]
 
         upload_blob(storageClient, "bugg-audio-dropbox", filePath, remoteFile, "audio/mpeg")
-    
+
 
         deviceId = remoteFile.split("/")[1]
 
-        if deviceId not in deviceIdsSeen and len(filePathsToUpload) > 1:
+        if deviceId not in deviceIdsSeen and len(filePathsToUpload) >= 1:
             deviceIdsSeen.append(deviceId)
             # Confirm if the user is happy to continue. They may need to set the location for this new deviceId.
             print(f"\nNew device Id seen: '{deviceId}'\n\nYou may need to set the location for this device here: https://app.bugg.xyz/?bugg={deviceId}&tab=location")
             print(f"\nDo you want to continue? (y/n)")
-            
+
             while True:
                 userInput = input()
                 if userInput.lower() == "y":
@@ -188,9 +187,3 @@ def main():
 # Run the main function
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
