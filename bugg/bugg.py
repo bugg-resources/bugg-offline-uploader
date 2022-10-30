@@ -52,6 +52,7 @@ def main():
     # the path should be audio/projectId/deviceId/configId
     projectPath = os.path.join(audioPath, config["device"]["project_id"])
     if not os.path.isdir(projectPath):
+        # Sometimes the Bugg saves the project path with "proj_" prepended
         projPrependProjectPath = os.path.join(audioPath, 'proj_'+config["device"]["project_id"])
         if os.path.isdir(projPrependProjectPath):
             projectPath = projPrependProjectPath
