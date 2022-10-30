@@ -56,7 +56,6 @@ def main():
         projPrependProjectPath = os.path.join(audioPath, 'proj_'+config["device"]["project_id"])
         if os.path.isdir(projPrependProjectPath):
             projectPath = projPrependProjectPath
-            break
         else:
             print(f"Cannot find project folder {projectPath}. \nThe project folder needs to match the ID in the config file.")
             exit(1)
