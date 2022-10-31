@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 from google.cloud import storage
+from requests.exceptions import ConnectionError
 
 def datetime_valid(dt_str):
     try:
@@ -141,7 +142,7 @@ def main():
                     content_type=content_type,
                     size=total_bytes,
                 )
-                return blob
+                return True
 
 
     deviceIdsSeen = []
@@ -158,8 +159,13 @@ def main():
         if remoteFile.startswith("audio/"):
             remoteFile = remoteFile[6:]
 
-        upload_blob(storageClient, "bugg-audio-dropbox", filePath, remoteFile, "audio/mpeg")
-
+        # Keep trying to upload if there is a ConnectionError
+        succesfulUpload = False
+        while not succesfulUpload:
+            try:
+                succesfulUpload = upload_blob(storageClient, "bugg-audio-dropbox", filePath, remoteFile, "audio/mpeg")
+            except Exception as e:
+                print(e)
 
         deviceId = remoteFile.split("/")[1]
 
