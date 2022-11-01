@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 from google.cloud import storage
+import time
 from requests.exceptions import ConnectionError
 
 def datetime_valid(dt_str):
@@ -146,6 +147,8 @@ def main():
 
 
     deviceIdsSeen = []
+    # Sort files chronologically
+    filePathsToUpload = sorted(filePathsToUpload)
     for filePath in filePathsToUpload:
         # Remove the args.folder prefix if there is one
         remoteFile = filePath
@@ -166,6 +169,8 @@ def main():
                 succesfulUpload = upload_blob(storageClient, "bugg-audio-dropbox", filePath, remoteFile, "audio/mpeg")
             except Exception as e:
                 print(e)
+                print('Waiting 10 seconds to reconnect')
+                time.sleep(10)
 
         deviceId = remoteFile.split("/")[1]
 
